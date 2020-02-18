@@ -10,15 +10,15 @@ enum class GpioSpeed
 	HIGH = GPIO_SPEED_FREQ_HIGH
 };
 
-template<uint16_t TPIN>
-class GpioCOut
+template<uint32_t TGPIO_ADDR, uint16_t TPIN>
+class GpioOut
 {
-
+	constexpr GPIO_TypeDef* gpio_addr() { return ((GPIO_TypeDef*)TGPIO_ADDR); }
 public:
-	GpioCOut(GpioSpeed gpioSpeed)
+	GpioOut(GpioSpeed gpioSpeed)
 	{
 		/*Configure GPIO pin Output Level */
-		HAL_GPIO_WritePin(GPIOC, TPIN, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(gpio_addr(), TPIN, GPIO_PIN_RESET);
 
 		{
 			GPIO_InitTypeDef GPIO_InitStruct;
@@ -27,15 +27,15 @@ public:
 			GPIO_InitStruct.Pull = GPIO_NOPULL;
 			//GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 			GPIO_InitStruct.Speed = uint32_t(gpioSpeed);
-			HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+			HAL_GPIO_Init(gpio_addr(), &GPIO_InitStruct);
 		}
 	}
-	void setHi() { GPIOC->BSRR = TPIN; }
-	void setLow() { GPIOC->BSRR = (uint32_t)TPIN << 16U; }
+	void setHi() { gpio_addr()->BSRR = TPIN; }
+	void setLow() { gpio_addr()->BSRR = (uint32_t)TPIN << 16U; }
 	void setVal(bool val) { val ? setHi() : setLow(); }
 	void operator=(bool val) { setVal(val); }
 };
 
-typedef GpioCOut<GPIO_PIN_13> GpioC13Out;
+typedef GpioOut<GPIOC_BASE, GPIO_PIN_13> GpioC13Out;
 
 #endif // GPIO_H
