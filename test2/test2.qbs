@@ -12,6 +12,9 @@ Product {
         "CubeMX/Drivers/CMSIS/Device/ST/STM32F1xx/Include",
         "CubeMX/Drivers/CMSIS/Include",
 
+        "CubeMX/Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc",
+        "CubeMX/Middlewares/ST/STM32_USB_Device_Library/Core/Inc",
+
         "STM32F103C8T6Core",
     ]
 
@@ -32,6 +35,8 @@ Product {
 
             //"CubeMX/Drivers/CMSIS/Device/ST/STM32F1xx/*.c",
             "Drivers/STM32F1xx_HAL_Driver/**/*.c",
+
+            "Middlewares/ST/STM32_USB_Device_Library/**/*.c",
 
             "Src/*.h",
             "Src/*.c",

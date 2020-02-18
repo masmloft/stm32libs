@@ -4,6 +4,10 @@
 #include <Gpio/Gpio.h>
 #include <System/SystemClock.h>
 
+#include "CubeMX/Inc/usart.h"
+#include "CubeMX/Inc/usb_device.h"
+#include "CubeMX/Inc/usbd_cdc_if.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -35,17 +39,33 @@ int main(void)
 	__HAL_RCC_GPIOD_CLK_ENABLE();
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 
+	MX_USART1_UART_Init();
+	MX_USB_DEVICE_Init();
+
 	GpioC13Out led(GpioSpeed::HIGH);
 
-	uint32_t i = 0;
-
 	led.setHi();
+
+	uint32_t i = 0;
+	uint32_t iPrint = 0;
+
 	while (1)
 	{
 		if(i++ & (0x10000 * 4))
 			led = true;
 		else
 			led = false;
+
+		iPrint++;
+		if(iPrint == 0x10000 * 4)
+		{
+			iPrint = 0;
+			uint8_t msg[] = "123\n";
+			CDC_Transmit_FS(msg, sizeof(msg));
+		}
+
+		//if(i / (0x10000 * 4) == 0x3FFFF)
+
 
 		//		for(int i = 0; i < 100000000 ; ++i)
 		//		{
