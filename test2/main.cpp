@@ -68,7 +68,7 @@ int main(void)
 		if(iPrint == 0x10000 * 4)
 		{
 			iPrint = 0;
-			uint8_t msg[] = "123\n";
+			uint8_t msg[] = "ok\r\n";
 			CDC_Transmit_FS(msg, sizeof(msg));
 		}
 
