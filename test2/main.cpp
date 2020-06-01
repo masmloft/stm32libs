@@ -59,7 +59,7 @@ int main(void)
 
 	while (1)
 	{
-		if(i++ & (0x10000 * 4))
+		if(i++ & (0x10000 * 4 * 2))
 			led = true;
 		else
 			led = false;
