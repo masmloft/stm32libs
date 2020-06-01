@@ -1,3 +1,6 @@
+//#include <string>
+//#include <sstream>
+
 #include "stm32f1xx_hal.h"
 #include "stm32f1xx_hal_wwdg.h"
 
@@ -27,9 +30,11 @@ void _Error_Handler(char *file, int line)
 
 void t1();
 
+
 int main(void)
 {
-	//t1();
+    //return 0;
+    //t1();
 
 	HAL_Init();
 	SystemClock::initClockExt72M();
@@ -46,7 +51,10 @@ int main(void)
 
 	led.setHi();
 
-	uint32_t i = 0;
+//    std::string s = "drwfw";
+//    std::c ss;
+
+    uint32_t i = 0;
 	uint32_t iPrint = 0;
 
 	while (1)

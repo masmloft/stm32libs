@@ -5,19 +5,22 @@ import qbs.TextFile
 import qbs.Process
 
 Module {
-    property string cpu: "cortex-m3"
-
     Depends { name:"cpp" }
     cpp.positionIndependentCode: false
     cpp.enableExceptions: false
     cpp.enableRtti: undefined
     cpp.visibility: undefined
-    cpp.linkerName : "gcc"
-    cpp.linkerMode: ""
+    //cpp.linkerName: "gcc"
+    //cpp.linkerName: { return "gcc" + cpp.compilerExtension }
+    //cpp.linkerMode: ""
     cpp.executableSuffix: ".elf"
     cpp.cxxLanguageVersion: "c++11"
-    //cpp.debugInformation: false
-    //cpp.optimization: "small"
+
+    cpp.driverFlags:[
+        "-mcpu=cortex-m3",
+        "-mthumb",
+//        "-flto",
+    ]
 
     cpp.defines: [
         "USE_HAL_DRIVER",
@@ -25,11 +28,7 @@ Module {
     ]
 
     cpp.commonCompilerFlags: [
-        //"-Os",
-        //"-flto",
         "-Wall",
-        "-mthumb",
-        "-mcpu=" + cpu,
         "-fdata-sections",
         "-ffunction-sections",
     ]
@@ -49,36 +48,36 @@ Module {
         "-MP",
     ]
 
-    cpp.linkerFlags:[
-        //"-flto",
-        "-mthumb",
-        "-mcpu=" + cpu,
+    cpp.driverLinkerFlags:[
+//        "-v",
         //"-msoft-float",
         //"-mfpu=vfp",
         "--specs=nano.specs",
         "--specs=nosys.specs",
-        //"-Wl,-Map=" + product.buildDirectory + "/" + product.name + ".map,--cref",
-        "-Wl,--gc-sections",
-        //"-T" + path + "/STM32F103C8Tx_FLASH.ld",
-        "-lc",
-        "-lm",
-        "-lnosys",
-        //"-lgcc",
-        //"-lstdc++",
+    ]
+
+    cpp.linkerFlags:[
+        "--gc-sections",
+        //"-Map=" + product.buildDirectory + "/" + product.name + ".map,--cref",
+    ]
+
+    cpp.staticLibraries: [
+        "c",
+        "m",
+        "nosys",
+        //"gcc",
+        //"stdc++",
     ]
 
     Properties {
         condition: qbs.buildVariant === "debug"
         //cpp.defines: outer.concat(["DEBUG=1"])
-        //cpp.cFlags: outer.concat(["-g", "-gdwarf-2"])
+        cpp.debugInformation: true
     }
 
     Properties {
         condition: qbs.buildVariant === "release"
         cpp.optimization: "small"
-//        cpp.commonCompilerFlags: outer.concat(["-flto"])
-//        cpp.linkerFlags: outer.concat(["-flto"])
-        //cpp.cFlags: outer.concat(["-flto"])
     }
 
     FileTagger {
@@ -182,14 +181,27 @@ Module {
             var binCmd = new Command(binApp, binArgs);
             binCmd.description = "Generate " + output.fileName;
             binCmd.highlight = "codegen";
+            return [binCmd];
+        }
+    }
 
+    Rule
+    {
+        id: blockSizes
+        inputs: ["application"]
+        Artifact
+        {
+            filePath: product.name + ".sizes"
+            fileTags: "sizes"
+        }
+        prepare:
+        {
             var sizeArgs = [input.filePath];
             var sizeApp = product.moduleProperty("cpp", "toolchainPathPrefix") + "size";
             var sizeCmd = new Command(sizeApp, sizeArgs);
             sizeCmd.description = "Size: " + input.fileName
             sizeCmd.highlight = "codegen";
-
-            return [binCmd, sizeCmd];
+            return [sizeCmd];
         }
     }
 }

@@ -1,9 +1,13 @@
 import qbs 1.0
 
 Product {
-    type: ["application", "bin"]
+    type: ["application", "bin", "sizes"]
 
     Depends { name:"STM32F103C8T6Module" }
+
+//    cpp.driverLinkerFlags:[
+//        "-v",
+//    ]
 
     cpp.includePaths: [
         "CubeMX/Inc",
