@@ -44,7 +44,7 @@ int main(void)
 	__HAL_RCC_GPIOD_CLK_ENABLE();
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 
-	MX_USART1_UART_Init();
+	MX_USART2_UART_Init();
 	MX_USB_DEVICE_Init();
 
 	GpioC13Out led(GpioSpeed::HIGH);
