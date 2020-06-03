@@ -10,9 +10,6 @@ Module {
     cpp.enableExceptions: false
     cpp.enableRtti: undefined
     cpp.visibility: undefined
-    //cpp.linkerName: "gcc"
-    //cpp.linkerName: { return "gcc" + cpp.compilerExtension }
-    //cpp.linkerMode: ""
     cpp.executableSuffix: ".elf"
     cpp.cxxLanguageVersion: "c++11"
 
