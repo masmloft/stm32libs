@@ -11,7 +11,7 @@ Module {
     cpp.enableRtti: undefined
     cpp.visibility: undefined
     cpp.executableSuffix: ".elf"
-    cpp.cxxLanguageVersion: "c++11"
+    cpp.cxxLanguageVersion: "c++14"
 
     cpp.driverFlags:[
         "-mcpu=cortex-m3",
@@ -28,6 +28,8 @@ Module {
         "-Wall",
         "-fdata-sections",
         "-ffunction-sections",
+        "-MMD",
+        "-MP",
     ]
 
     cpp.assemblerFlags: [
@@ -36,13 +38,9 @@ Module {
     ]
 
     cpp.cFlags: [
-        "-MMD",
-        "-MP",
     ]
 
     cpp.cxxFlags: [
-        "-MMD",
-        "-MP",
     ]
 
     cpp.driverLinkerFlags:[
