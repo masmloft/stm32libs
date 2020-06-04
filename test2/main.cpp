@@ -4,8 +4,9 @@
 #include "stm32f1xx_hal.h"
 #include "stm32f1xx_hal_wwdg.h"
 
-#include <Gpio/Gpio.h>
 #include <System/SystemClock.h>
+#include <Gpio/Gpio.h>
+#include <Uart/Uart.h>
 
 #include "CubeMX/Inc/usart.h"
 #include "CubeMX/Inc/usb_device.h"
@@ -43,11 +44,15 @@ int main(void)
 	__HAL_RCC_GPIOC_CLK_ENABLE();
 	__HAL_RCC_GPIOD_CLK_ENABLE();
 	__HAL_RCC_GPIOA_CLK_ENABLE();
+	__HAL_RCC_GPIOB_CLK_ENABLE();
 
-	MX_USART2_UART_Init();
+//	MX_USART2_UART_Init();
+	MX_USART3_UART_Init();
 	MX_USB_DEVICE_Init();
 
 	GpioC13Out led(GpioSpeed::HIGH);
+
+	Uart2 uart2;
 
 	led.setHi();
 
@@ -59,40 +64,50 @@ int main(void)
 
 	while (1)
 	{
-		if(i++ & (0x10000 * 4 * 2))
-			led = true;
-		else
-			led = false;
+//		if(i++ & (0x10000 * 4 * 2))
+//		if(i++ & (0x100))
+//			led = true;
+//		else
+//			led = false;
 
-		iPrint++;
-		if(iPrint == 0x10000 * 4)
+		led.setToggle();
+
 		{
-			iPrint = 0;
-			uint8_t msg[] = "ok\r\n";
-			CDC_Transmit_FS(msg, sizeof(msg));
+			char txBuf[] = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\r\n";
+			uart2.write(txBuf, sizeof(txBuf) - 1, 100);
+			uart2.write(txBuf, sizeof(txBuf) - 1, 100);
+			uart2.write(txBuf, sizeof(txBuf) - 1, 100);
+			uart2.write(txBuf, sizeof(txBuf) - 1, 100);
+			uart2.write(txBuf, sizeof(txBuf) - 1, 100);
+			uart2.write(txBuf, sizeof(txBuf) - 1, 100);
+			uart2.write(txBuf, sizeof(txBuf) - 1, 100);
+			uart2.write(txBuf, sizeof(txBuf) - 1, 100);
+			uart2.write(txBuf, sizeof(txBuf) - 1, 100);
+			uart2.write(txBuf, sizeof(txBuf) - 1, 100);
 		}
 
-		//if(i / (0x10000 * 4) == 0x3FFFF)
+//		iPrint++;
+//		if(iPrint == 0x10000 * 4)
+//		{
+//			iPrint = 0;
+//			uint8_t msg[] = "ok\r\n";
+//			CDC_Transmit_FS(msg, sizeof(msg));
+//		}
+
+//		{
+//			uint8_t rxBuf[256];
+//			HAL_UART_Receive(&huart2, rxBuf, sizeof(rxBuf), 100);
+//			int16_t rxSize = huart2.RxXferSize - huart2.RxXferCount - 1;
+
+//			if(rxSize > 0)
+//			{
+////				if(rxSize > 1)
+////					HAL_UART_Transmit(&huart2, (uint8_t*)"!", 3, 100);
+//				HAL_UART_Transmit(&huart2, rxBuf, rxSize, 100);
+//			}
+//		}
 
 
-		//		for(int i = 0; i < 100000000 ; ++i)
-		//		{
-		//			GPIOC->BSRR = GPIO_BSRR_BS13;
-		//			GPIOC->BSRR = GPIO_BSRR_BR13;
-		//		}
-
-		//		for(int i = 0; i < 100000000 ; ++i)
-		//		{
-		//			GPIOC->ODR |= GPIO_ODR_ODR13;
-		//			GPIOC->ODR &= ~GPIO_ODR_ODR13;
-		//		}
-
-		//		for(int i = 0; i < 100000000 ; ++i)
-		//		{
-		//			GPIOC->ODR = GPIO_ODR_ODR13;
-		//			GPIOC->ODR = 0;
-		//		}
 
 	}
-	led = true;
 }

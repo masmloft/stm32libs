@@ -1,5 +1,4 @@
-#ifndef GPIO_H
-#define GPIO_H
+#pragma once
 
 #include "stm32f1xx_hal_gpio.h"
 
@@ -32,10 +31,10 @@ public:
 	}
 	void setHi() { gpio_addr()->BSRR = TPIN; }
 	void setLow() { gpio_addr()->BSRR = (uint32_t)TPIN << 16U; }
+	void setToggle() { gpio_addr()->ODR ^= TPIN; }
+
 	void setVal(bool val) { val ? setHi() : setLow(); }
 	void operator=(bool val) { setVal(val); }
 };
 
 typedef GpioOut<GPIOC_BASE, GPIO_PIN_13> GpioC13Out;
-
-#endif // GPIO_H
