@@ -47,20 +47,15 @@ int main(void)
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 
 //	MX_USART2_UART_Init();
-	MX_USART3_UART_Init();
-	MX_USB_DEVICE_Init();
+//	MX_USART3_UART_Init();
+//	MX_USB_DEVICE_Init();
 
 	GpioC13Out led(GpioSpeed::HIGH);
-
-	Uart2 uart2;
+	Uart2 uart2(9600);
 
 	led.setHi();
 
-//    std::string s = "drwfw";
-//    std::c ss;
-
-	//uint32_t i = 0;
-	uint32_t iPrint = 0;
+	uint32_t lastTick = HAL_GetTick();
 
 	for(uint32_t i = 0; ; ++i)
 	{
@@ -75,14 +70,19 @@ int main(void)
 		char rxBuf[256];
 
 		int rxSize = uart2.read(rxBuf, sizeof(rxBuf), 10);
-		uart2.write(rxBuf, rxSize);
+		if(rxSize > 0)
+			uart2.write(rxBuf, rxSize);
 
-
+		uint32_t currTick = HAL_GetTick();
+		if(currTick - lastTick > 1000)
 		{
-//			char txBuf[] = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\r\n";
-//			sprintf(txBuf, "%u\r\n", i);
-//			uart2.write(txBuf);
+			sprintf(rxBuf, "$GPRMC,%u,A,5542.2389,N,03741.6063,E,,,040620,,*2D\r\n", currTick);
+			uart2.write(rxBuf);
+//			uart2.write("$GPRMC,121412.610,V,,,,,,,040620,,*2D\r\n");
+			lastTick = currTick;
 		}
+
+
 
 //		iPrint++;
 //		if(iPrint == 0x10000 * 4)
@@ -91,21 +91,6 @@ int main(void)
 //			uint8_t msg[] = "ok\r\n";
 //			CDC_Transmit_FS(msg, sizeof(msg));
 //		}
-
-//		{
-//			uint8_t rxBuf[256];
-//			HAL_UART_Receive(&huart2, rxBuf, sizeof(rxBuf), 100);
-//			int16_t rxSize = huart2.RxXferSize - huart2.RxXferCount - 1;
-
-//			if(rxSize > 0)
-//			{
-////				if(rxSize > 1)
-////					HAL_UART_Transmit(&huart2, (uint8_t*)"!", 3, 100);
-//				HAL_UART_Transmit(&huart2, rxBuf, rxSize, 100);
-//			}
-//		}
-
-
 
 	}
 }

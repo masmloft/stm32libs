@@ -11,10 +11,10 @@ class Uart
 	UART_HandleTypeDef _huart{};
 	uint32_t _txTimeout = 100;
 public:
-	Uart()
+	Uart(uint32_t baudRate)
 	{
 		_huart.Instance = USART2;
-		_huart.Init.BaudRate = 115200;
+		_huart.Init.BaudRate = baudRate;
 		_huart.Init.WordLength = UART_WORDLENGTH_8B;
 		_huart.Init.StopBits = UART_STOPBITS_1;
 		_huart.Init.Parity = UART_PARITY_NONE;
