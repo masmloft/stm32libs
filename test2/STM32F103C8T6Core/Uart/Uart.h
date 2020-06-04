@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string.h>
+
 #include "stm32f1xx_hal_uart.h"
 
 
@@ -7,6 +9,7 @@ template<uint32_t TADDR>
 class Uart
 {
 	UART_HandleTypeDef _huart{};
+	uint32_t _txTimeout = 100;
 public:
 	Uart()
 	{
@@ -24,15 +27,27 @@ public:
 		}
 	}
 
-	int write(char* buf, size_t bufSize, uint32_t timeout)
+	int write(const char* buf, int bufSize)
 	{
-		HAL_StatusTypeDef res = HAL_UART_Transmit(&_huart, (uint8_t*)buf, bufSize, timeout);
-		return _huart.TxXferCount;
+		if(bufSize <= 0)
+			return 0;
+		HAL_StatusTypeDef res = HAL_UART_Transmit(&_huart, (uint8_t*)buf, bufSize, _txTimeout);
+		return _huart.TxXferSize - _huart.TxXferCount;
 	}
-//	void setHi() { gpio_addr()->BSRR = TPIN; }
-//	void setLow() { gpio_addr()->BSRR = (uint32_t)TPIN << 16U; }
-//	void setVal(bool val) { val ? setHi() : setLow(); }
-//	void operator=(bool val) { setVal(val); }
+
+	int write(const char* buf)
+	{
+		int bufSize = strlen(buf);
+		return write(buf, bufSize);
+	}
+
+	int read(char* buf, int bufSize, uint32_t timeout)
+	{
+		HAL_StatusTypeDef res = HAL_UART_Receive(&_huart, (uint8_t*)buf, bufSize, timeout);
+		int rxSize = _huart.RxXferSize - _huart.RxXferCount - 1;
+		return rxSize;
+	}
+
 };
 
 typedef Uart<USART2_BASE> Uart2;

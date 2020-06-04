@@ -59,10 +59,10 @@ int main(void)
 //    std::string s = "drwfw";
 //    std::c ss;
 
-    uint32_t i = 0;
+	//uint32_t i = 0;
 	uint32_t iPrint = 0;
 
-	while (1)
+	for(uint32_t i = 0; ; ++i)
 	{
 //		if(i++ & (0x10000 * 4 * 2))
 //		if(i++ & (0x100))
@@ -72,18 +72,16 @@ int main(void)
 
 		led.setToggle();
 
+		char rxBuf[256];
+
+		int rxSize = uart2.read(rxBuf, sizeof(rxBuf), 10);
+		uart2.write(rxBuf, rxSize);
+
+
 		{
-			char txBuf[] = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\r\n";
-			uart2.write(txBuf, sizeof(txBuf) - 1, 100);
-			uart2.write(txBuf, sizeof(txBuf) - 1, 100);
-			uart2.write(txBuf, sizeof(txBuf) - 1, 100);
-			uart2.write(txBuf, sizeof(txBuf) - 1, 100);
-			uart2.write(txBuf, sizeof(txBuf) - 1, 100);
-			uart2.write(txBuf, sizeof(txBuf) - 1, 100);
-			uart2.write(txBuf, sizeof(txBuf) - 1, 100);
-			uart2.write(txBuf, sizeof(txBuf) - 1, 100);
-			uart2.write(txBuf, sizeof(txBuf) - 1, 100);
-			uart2.write(txBuf, sizeof(txBuf) - 1, 100);
+//			char txBuf[] = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\r\n";
+//			sprintf(txBuf, "%u\r\n", i);
+//			uart2.write(txBuf);
 		}
 
 //		iPrint++;
