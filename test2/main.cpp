@@ -52,6 +52,7 @@ int main(void)
 
 	GpioC13Out led(GpioSpeed::HIGH);
 	Uart2 uart2(9600);
+	Uart3 uart3(9600);
 
 	led.setHi();
 
@@ -59,30 +60,29 @@ int main(void)
 
 	for(uint32_t i = 0; ; ++i)
 	{
-//		if(i++ & (0x10000 * 4 * 2))
-//		if(i++ & (0x100))
-//			led = true;
-//		else
-//			led = false;
-
 		led.setToggle();
 
 		char rxBuf[256];
 
-		int rxSize = uart2.read(rxBuf, sizeof(rxBuf), 10);
+		int rxSize = uart3.read(rxBuf, sizeof(rxBuf), 10);
 		if(rxSize > 0)
-			uart2.write(rxBuf, rxSize);
-
-		uint32_t currTick = HAL_GetTick();
-		if(currTick - lastTick > 1000)
 		{
-			sprintf(rxBuf, "$GPRMC,%u,A,5542.2389,N,03741.6063,E,,,040620,,*2D\r\n", currTick);
-			uart2.write(rxBuf);
-//			uart2.write("$GPRMC,121412.610,V,,,,,,,040620,,*2D\r\n");
-			lastTick = currTick;
+			led.setToggle();
+			uart2.write(rxBuf, rxSize);
+		}
+		else
+		{
+			led.setLow();
 		}
 
-
+//		uint32_t currTick = HAL_GetTick();
+//		if(currTick - lastTick > 1000)
+//		{
+//			sprintf(rxBuf, "$GPRMC,%u,A,5542.2389,N,03741.6063,E,,,040620,,*2D\r\n", currTick);
+//			uart2.write(rxBuf);
+////			uart2.write("$GPRMC,121412.610,V,,,,,,,040620,,*2D\r\n");
+//			lastTick = currTick;
+//		}
 
 //		iPrint++;
 //		if(iPrint == 0x10000 * 4)

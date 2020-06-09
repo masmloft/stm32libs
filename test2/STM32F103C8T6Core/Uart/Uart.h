@@ -13,7 +13,7 @@ class Uart
 public:
 	Uart(uint32_t baudRate)
 	{
-		_huart.Instance = USART2;
+		_huart.Instance = ((USART_TypeDef *)TADDR); //USART2;
 		_huart.Init.BaudRate = baudRate;
 		_huart.Init.WordLength = UART_WORDLENGTH_8B;
 		_huart.Init.StopBits = UART_STOPBITS_1;
@@ -51,3 +51,4 @@ public:
 };
 
 typedef Uart<USART2_BASE> Uart2;
+typedef Uart<USART3_BASE> Uart3;
