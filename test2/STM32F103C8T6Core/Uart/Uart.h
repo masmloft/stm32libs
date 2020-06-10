@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string.h>
+#include <algorithm>
 
 #include "stm32f1xx_hal_uart.h"
 
@@ -10,6 +11,7 @@ class Uart
 {
 	UART_HandleTypeDef _huart{};
 	uint32_t _txTimeout = 100;
+	char _txBuf[256];
 public:
 	Uart(uint32_t baudRate)
 	{
@@ -26,6 +28,8 @@ public:
 		  _Error_Handler(__FILE__, __LINE__);
 		}
 	}
+public:
+	UART_HandleTypeDef& huart() { return _huart; }
 
 	int write(const char* buf, int bufSize)
 	{
@@ -39,6 +43,16 @@ public:
 	{
 		int bufSize = strlen(buf);
 		return write(buf, bufSize);
+	}
+
+	void writeIt(const char* buf, int bufSize)
+	{
+		if(bufSize <= 0)
+			return;
+		const int s = std::min((int)sizeof(_txBuf), bufSize);
+		memcpy(_txBuf, buf, s);
+		HAL_StatusTypeDef res = HAL_UART_Transmit_IT(&_huart, (uint8_t*)_txBuf, s);
+		//return _huart.TxXferSize - _huart.TxXferCount;
 	}
 
 	int read(char* buf, int bufSize, uint32_t timeout)
