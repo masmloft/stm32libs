@@ -14,11 +14,14 @@
 
 #include "Class/RingBuffer.h"
 
+#include "Lora.h"
+
 uint8_t uart3_rxBuf[1];
-uint8_t uart2_txBuf[1];
+//uint8_t uart2_txBuf[1];
 //int uart2_txBuf_size = 0;
 
 RingBuffer<uint8_t, 1024> gRxBuf;
+//RingBuffer<uint8_t, 1024> gTxBuf;
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,51 +71,35 @@ int main(void)
 
 	HAL_StatusTypeDef res = HAL_UART_Receive_IT(&huart3, uart3_rxBuf, sizeof(uart3_rxBuf));
 
-	for(uint32_t i = 0; ; ++i)
+	char txBuf[256];
+	int txPos = 0;
+
+	for(uint32_t i = 0; true; ++i)
 	{
-//		HAL_StatusTypeDef res = HAL_UART_Receive_IT(&huart3, uart3_rxBuf, sizeof(uart3_rxBuf));
-		//if(res == HAL_OK)
-//		if(huart3.RxXferCount == 0)
+//		if(gRxBuf.isEmpty() == false)
 //		{
-//			HAL_StatusTypeDef res = HAL_UART_Transmit(&huart2, (uint8_t*)rxBuf, 1, 10);
-//		}
-//		else
-//		{
-//			HAL_StatusTypeDef res = HAL_UART_Transmit(&huart2, (uint8_t*)"BUSY\r\n", 6, 10);
+//			while(gRxBuf.size() > 0)
+//				lora_send(gRxBuf.pop());
 //		}
 
-//		int rxSize = uart3.read(rxBuf, sizeof(rxBuf), 10);
+		while(gRxBuf.size() > 0)
+		{
+			if(txPos >= sizeof(txBuf))
+				txPos = 0;
+			char b = gRxBuf.pop();
+			if(b == '$')
+				txPos = 0;
 
-
-
-//		int rxSize = uart3.read(rxBuf, sizeof(rxBuf), 10);
-//		if(rxSize > 0)
-//		{
-//			led.setToggle();
-//			uart2.write(rxBuf, rxSize);
-//			//uart2.writeIt(rxBuf, rxSize);
-//		}
-//		else
-//		{
-//			led.setHi();
-//		}
-
-//		uint32_t currTick = HAL_GetTick();
-//		if(currTick - lastTick > 1000)
-//		{
-//			sprintf(rxBuf, "$GPRMC,%u,A,5542.2389,N,03741.6063,E,,,040620,,*2D\r\n", currTick);
-//			uart2.write(rxBuf);
-////			uart2.write("$GPRMC,121412.610,V,,,,,,,040620,,*2D\r\n");
-//			lastTick = currTick;
-//		}
-
-//		iPrint++;
-//		if(iPrint == 0x10000 * 4)
-//		{
-//			iPrint = 0;
-//			uint8_t msg[] = "ok\r\n";
-//			CDC_Transmit_FS(msg, sizeof(msg));
-//		}
+			txBuf[txPos++] = b;
+			if(b == '\n')
+			{
+				if(memcmp(txBuf, "$GPRMC,", 7) == 0)
+					lora_send(txBuf, txPos);
+				if(memcmp(txBuf, "$GPGGA,", 7) == 0)
+					lora_send(txBuf, txPos);
+				txPos = 0;
+			}
+		}
 
 	}
 }
@@ -134,25 +121,26 @@ extern "C" void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 		gRxBuf.push(uart3_rxBuf[0]);
 
-		if(huart2.gState == HAL_UART_STATE_READY)
-		{
-			if(gRxBuf.isEmpty() == false)
-			{
-				uart2_txBuf[0] =gRxBuf.pop();
-				HAL_UART_Transmit_IT(&huart2, uart2_txBuf, sizeof(uart2_txBuf));
-			}
-		}
+
+//		if(huart2.gState == HAL_UART_STATE_READY)
+//		{
+//			if(gRxBuf.isEmpty() == false)
+//			{
+//				uart2_txBuf[0] =gRxBuf.pop();
+//				HAL_UART_Transmit_IT(&huart2, uart2_txBuf, sizeof(uart2_txBuf));
+//			}
+//		}
 	}
 }
 
-extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
-{
-	if(huart == &huart2)
-	{
-		if(gRxBuf.isEmpty() == false)
-		{
-			uart2_txBuf[0] =gRxBuf.pop();
-			HAL_UART_Transmit_IT(&huart2, uart2_txBuf, sizeof(uart2_txBuf));
-		}
-	}
-}
+//extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+//{
+//	if(huart == &huart2)
+//	{
+//		if(gTxBuf.isEmpty() == false)
+//		{
+//			uart2_txBuf[0] = gTxBuf.pop();
+//			HAL_UART_Transmit_IT(&huart2, uart2_txBuf, sizeof(uart2_txBuf));
+//		}
+//	}
+//}

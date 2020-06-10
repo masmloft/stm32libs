@@ -46,4 +46,5 @@ public:
 		_head = (_head + 1) % MAX_SIZE;
 		return ret;
 	}
+
 };
