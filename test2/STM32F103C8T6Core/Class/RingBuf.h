@@ -3,16 +3,12 @@
 #include <stdint.h>
 
 template<typename T, uint32_t MAX_SIZE>
-class RingBuffer
+class RingBuf
 {
 private:
 	T _buffer[MAX_SIZE];
 	uint32_t _head = 0;
 	uint32_t _tail = 0;
-public:
-	RingBuffer()
-	{
-	}
 public:
 	bool isEmpty() const { return _head == _tail; }
 	bool isFull() const { return _tail == (_head - 1) % MAX_SIZE; }

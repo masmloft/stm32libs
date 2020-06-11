@@ -59,7 +59,7 @@ Product {
 
     files: [
         "*.h",
+        "*.c",
         "*.cpp",
     ]
 }
-
