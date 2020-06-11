@@ -1,11 +1,9 @@
 #include "UartIt.h"
 
-//#include "CubeMX/Inc/usart.h"
-
 UartIt::UartData UartIt::_allUartData[UartIt::UART_COUNT] = {};
 
-extern UART_HandleTypeDef huart2;
-extern UART_HandleTypeDef huart3;
+//extern UART_HandleTypeDef huart2;
+//extern UART_HandleTypeDef huart3;
 
 extern "C" void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {

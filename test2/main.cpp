@@ -75,12 +75,17 @@ int main(void)
 				nmeaBufPos = 0;
 			char b = uartIt3.rxBuf().pop();
 			if(b == '$')
+			{
+				led.setLow();
 				nmeaBufPos = 0;
+			}
 
 			nmeaBuf[nmeaBufPos++] = b;
 			if(b == '\n')
 			{
-				led.setToggle();
+				led.setHi();
+//				led.setToggle();
+
 //				if(memcmp(nmeaBuf, "$GPRMC,", 7) == 0)
 //					UartIt2::send(nmeaBuf, nmeaBufPos);
 				if(memcmp(nmeaBuf, "$GPGGA,", 7) == 0)
