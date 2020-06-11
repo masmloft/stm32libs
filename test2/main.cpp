@@ -13,6 +13,10 @@
 #include "CubeMX/Inc/usbd_cdc_if.h"
 
 #include "uart.h"
+#include "UartIt.h"
+
+UartIt uartIt2(&huart2);
+UartIt uartIt3(&huart3);
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,36 +57,40 @@ int main(void)
 //	MX_USB_DEVICE_Init();
 
 	GpioC13Out led(GpioSpeed::HIGH);
-//	Uart2 uart2(9600);
-//	Uart3 uart3(9600);
 
 	led.setHi();
 
 	uint32_t lastTick = HAL_GetTick();
 
 	//UartIt2::recvIt();
-	UartIt3::recvIt();
+	//UartIt3::recvIt();
+
+	uartIt3.startRxIt();
 
 	char nmeaBuf[256];
 	int nmeaBufPos = 0;
 
 	for(uint32_t i = 0; true; ++i)
 	{
-		while(UartIt3::rxBuf.size() > 0)
+//		uartIt2.write("t\r\n", 3);
+//		led.setToggle();
+		while(uartIt3.rxBuf().isEmpty() == false)
 		{
 			if(nmeaBufPos >= sizeof(nmeaBuf))
 				nmeaBufPos = 0;
-			char b = UartIt3::rxBuf.pop();
+			char b = uartIt3.rxBuf().pop();
 			if(b == '$')
 				nmeaBufPos = 0;
 
 			nmeaBuf[nmeaBufPos++] = b;
 			if(b == '\n')
 			{
+				led.setToggle();
 //				if(memcmp(nmeaBuf, "$GPRMC,", 7) == 0)
 //					UartIt2::send(nmeaBuf, nmeaBufPos);
 				if(memcmp(nmeaBuf, "$GPGGA,", 7) == 0)
-					UartIt2::send(nmeaBuf, nmeaBufPos);
+					uartIt2.write(nmeaBuf, nmeaBufPos);
+					//UartIt2::send(nmeaBuf, nmeaBufPos);
 //				if(memcmp(nmeaBuf, "$GPGGA,", 7) == 0)
 //				{
 
