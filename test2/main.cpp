@@ -14,9 +14,6 @@
 
 #include "UartIt.h"
 
-UartIt uartIt2(&huart2);
-UartIt uartIt3(&huart3);
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -39,9 +36,6 @@ void t1();
 
 int main(void)
 {
-    //return 0;
-    //t1();
-
 	HAL_Init();
 	SystemClock::initClockExt72M();
 
@@ -56,19 +50,19 @@ int main(void)
 //	MX_USB_DEVICE_Init();
 
 	GpioC13Out led(GpioSpeed::HIGH);
-	//GpioC14Out g14(GpioSpeed::HIGH);
 
 	led.setLow();
 
 //	uint32_t lastTick = HAL_GetTick();
 
-	uartIt3.startRxIt();
+	uartIt3.startRx();
 
 	char nmeaBuf[256];
-	int nmeaBufPos = 0;
+	size_t nmeaBufPos = 0;
 
 	for(uint32_t i = 0; true; ++i)
 	{
+//		led.setToggle();
 		while(uartIt3.rxBuf().isEmpty() == false)
 		{
 			if(nmeaBufPos >= sizeof(nmeaBuf))
@@ -79,23 +73,14 @@ int main(void)
 				led.setLow();
 				nmeaBufPos = 0;
 			}
-
 			nmeaBuf[nmeaBufPos++] = b;
 			if(b == '\n')
 			{
 				led.setHi();
-//				led.setToggle();
-
 //				if(memcmp(nmeaBuf, "$GPRMC,", 7) == 0)
-//					UartIt2::send(nmeaBuf, nmeaBufPos);
+//					uartIt2.write(nmeaBuf, nmeaBufPos);
 				if(memcmp(nmeaBuf, "$GPGGA,", 7) == 0)
 					uartIt2.write(nmeaBuf, nmeaBufPos);
-					//UartIt2::send(nmeaBuf, nmeaBufPos);
-//				if(memcmp(nmeaBuf, "$GPGGA,", 7) == 0)
-//				{
-
-//				}
-
 				nmeaBufPos = 0;
 			}
 		}
