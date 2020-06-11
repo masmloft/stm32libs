@@ -8,6 +8,6 @@ Project {
 //        "mbed/mbed.qbs",
 //        "mbed-5/mbed.qbs",
 //        "test1/test1.qbs",
-        "test2/test2.qbs",
+        "GpsToLora/GpsToLora.qbs",
     ]
 }
