@@ -11,6 +11,7 @@ public:
 public:
 	static void send(char val);
 	static void send(const char* buf, int size);
+	static void recvIt();
 };
 
 
@@ -18,5 +19,6 @@ class UartIt3
 {
 public:
 	static RingBuf<uint8_t, 1024> rxBuf;
-
+public:
+	static void recvIt();
 };

@@ -14,13 +14,6 @@
 
 #include "uart.h"
 
-uint8_t uart3_rxBuf[1];
-//uint8_t uart2_txBuf[1];
-//int uart2_txBuf_size = 0;
-
-//RingBuffer<uint8_t, 1024> gRxBuf;
-//RingBuffer<uint8_t, 1024> gTxBuf;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -67,7 +60,8 @@ int main(void)
 
 	uint32_t lastTick = HAL_GetTick();
 
-	HAL_StatusTypeDef res = HAL_UART_Receive_IT(&huart3, uart3_rxBuf, sizeof(uart3_rxBuf));
+	//UartIt2::recvIt();
+	UartIt3::recvIt();
 
 	char nmeaBuf[256];
 	int nmeaBufPos = 0;

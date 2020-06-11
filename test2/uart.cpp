@@ -4,10 +4,11 @@
 #include "CubeMX/Inc/usart.h"
 
 static uint8_t uart2_txBuf[1];
-static uint8_t uart3_rxBuf[1];
-
+static uint8_t uart2_rxBuf[1];
 RingBuf<uint8_t, 1024> UartIt2::txBuf;
 
+static uint8_t uart3_txBuf[1];
+static uint8_t uart3_rxBuf[1];
 RingBuf<uint8_t, 1024> UartIt3::rxBuf;
 
 void UartIt2::send(char val)
@@ -37,12 +38,22 @@ void UartIt2::send(const char* buf, int size)
 	}
 }
 
+void UartIt2::recvIt()
+{
+	HAL_StatusTypeDef res = HAL_UART_Receive_IT(&huart2, uart2_rxBuf, sizeof(uart2_rxBuf));
+}
+
+void UartIt3::recvIt()
+{
+	HAL_StatusTypeDef res = HAL_UART_Receive_IT(&huart3, uart3_rxBuf, sizeof(uart3_rxBuf));
+}
+
 extern "C" void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
 	if(huart == &huart3)
 	{
 		HAL_UART_Transmit(&huart2, (uint8_t*)"\r\nERR\r\n", 7, 1000);
-		HAL_StatusTypeDef res = HAL_UART_Receive_IT(&huart3, uart3_rxBuf, sizeof(uart3_rxBuf));
+		UartIt3::recvIt();
 	}
 }
 
@@ -62,7 +73,7 @@ extern "C" void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart == &huart3)
 	{
-		HAL_StatusTypeDef res = HAL_UART_Receive_IT(&huart3, uart3_rxBuf, sizeof(uart3_rxBuf));
 		UartIt3::rxBuf.push(uart3_rxBuf[0]);
+		UartIt3::recvIt();
 	}
 }
