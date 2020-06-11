@@ -2,18 +2,19 @@
 
 //#include "CubeMX/Inc/usart.h"
 
-UartIt::UartData UartIt::_uartDatas[4] = {};
+UartIt::UartData UartIt::_allUartData[UartIt::UART_COUNT] = {};
 
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
 
 extern "C" void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
-	if(huart == &huart3)
-	{
-		HAL_UART_Transmit(&huart2, (uint8_t*)"\r\nERR\r\n", 7, 1000);
-//		UartIt::getUartIt(huart)->startRxIt();
-	}
+	UartIt::interruptErr(huart);
+//	if(huart == &huart3)
+//	{
+//		HAL_UART_Transmit(&huart2, (uint8_t*)"\r\nERR\r\n", 7, 1000);
+////		UartIt::getUartIt(huart)->startRxIt();
+//	}
 }
 
 extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
@@ -29,10 +30,17 @@ extern "C" void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 UartIt* UartIt::getUartIt(UART_HandleTypeDef* huart)
 {
-	for(UartData& uartData : _uartDatas)
+	for(UartData& uartData : _allUartData)
 		if(uartData.huart == huart)
 			return uartData.uartIt;
 	return nullptr;
+}
+
+void UartIt::interruptErr(UART_HandleTypeDef* huart)
+{
+	if(UartIt* uartIt = getUartIt(huart))
+	{
+	}
 }
 
 void UartIt::interruptTx(UART_HandleTypeDef* huart)
@@ -57,7 +65,7 @@ UartIt::UartIt(UART_HandleTypeDef* huart)
 {
 	if(huart == nullptr)
 		return;
-	for(UartData& uartData : _uartDatas)
+	for(UartData& uartData : _allUartData)
 	{
 		if(uartData.huart == huart)
 			return;
@@ -66,7 +74,7 @@ UartIt::UartIt(UART_HandleTypeDef* huart)
 
 	if(_uartData == nullptr)
 	{
-		for(UartData& uartData : _uartDatas)
+		for(UartData& uartData : _allUartData)
 		{
 			if(uartData.huart == nullptr)
 			{

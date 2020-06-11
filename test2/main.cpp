@@ -12,7 +12,6 @@
 #include "CubeMX/Inc/usb_device.h"
 #include "CubeMX/Inc/usbd_cdc_if.h"
 
-#include "uart.h"
 #include "UartIt.h"
 
 UartIt uartIt2(&huart2);
@@ -57,13 +56,11 @@ int main(void)
 //	MX_USB_DEVICE_Init();
 
 	GpioC13Out led(GpioSpeed::HIGH);
+	//GpioC14Out g14(GpioSpeed::HIGH);
 
-	led.setHi();
+	led.setLow();
 
-	uint32_t lastTick = HAL_GetTick();
-
-	//UartIt2::recvIt();
-	//UartIt3::recvIt();
+//	uint32_t lastTick = HAL_GetTick();
 
 	uartIt3.startRxIt();
 
@@ -72,8 +69,6 @@ int main(void)
 
 	for(uint32_t i = 0; true; ++i)
 	{
-//		uartIt2.write("t\r\n", 3);
-//		led.setToggle();
 		while(uartIt3.rxBuf().isEmpty() == false)
 		{
 			if(nmeaBufPos >= sizeof(nmeaBuf))
@@ -99,6 +94,5 @@ int main(void)
 				nmeaBufPos = 0;
 			}
 		}
-
 	}
 }

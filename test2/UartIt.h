@@ -6,10 +6,12 @@
 class UartIt
 {
 public:
-	using TxBuf = RingBuf<uint8_t, 256>;
+	constexpr static size_t UART_COUNT = 3;
+	using TxBuf = RingBuf<uint8_t, 512>;
 	using RxBuf = RingBuf<uint8_t, 512>;
 public:
 	static UartIt* getUartIt(UART_HandleTypeDef* huart);
+	static void interruptErr(UART_HandleTypeDef* huart);
 	static void interruptTx(UART_HandleTypeDef* huart);
 	static void interruptRx(UART_HandleTypeDef* huart);
 public:
@@ -17,15 +19,10 @@ public:
 	~UartIt();
 public:
 	bool startRxIt();
-	bool startTxIt();
 
 	RxBuf& rxBuf() { return _rxBuf; }
+	const TxBuf& txBuf() { return _txBuf; }
 	void write(const char* buf, int size);
-
-
-//	static void send(char val);
-//	static void send(const char* buf, int size);
-//	static void recvIt();
 private:
 	struct UartData
 	{
@@ -35,8 +32,12 @@ private:
 		uint8_t uart_rxBuf[1];
 	};
 private:
-	static UartData _uartDatas[4];
+	static UartData _allUartData[UART_COUNT];
+private:
 	UartData* _uartData = nullptr;
 	TxBuf _txBuf;
 	RxBuf _rxBuf;
+private:
+	bool startTxIt();
 };
+
