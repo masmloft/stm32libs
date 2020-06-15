@@ -14,7 +14,8 @@
 //#include "STM32F103C8T6Lib/Uart/Uart.h"
 #include "STM32F103C8T6Lib/Uart/UartIt.h"
 
-UartIt uartIt2(&huart2);
+UartIt uartIt1(&huart1);
+//UartIt uartIt2(&huart2);
 UartIt uartIt3(&huart3);
 
 #ifdef __cplusplus
@@ -32,24 +33,30 @@ void _Error_Handler(char *file, int line)
 
 extern "C" void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
-	if(huart == uartIt2.huart())
-		uartIt2.interruptErr();
+	if(huart == uartIt1.huart())
+		uartIt1.interruptErr();
+//	if(huart == uartIt2.huart())
+//		uartIt2.interruptErr();
 	if(huart == uartIt3.huart())
 		uartIt3.interruptErr();
 }
 
 extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
-	if(huart == uartIt2.huart())
-		uartIt2.interruptTx();
+	if(huart == uartIt1.huart())
+		uartIt1.interruptTx();
+//	if(huart == uartIt2.huart())
+//		uartIt2.interruptTx();
 	if(huart == uartIt3.huart())
 		uartIt3.interruptTx();
 }
 
 extern "C" void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-	if(huart == uartIt2.huart())
-		uartIt2.interruptRx();
+	if(huart == uartIt1.huart())
+		uartIt1.interruptRx();
+//	if(huart == uartIt2.huart())
+//		uartIt2.interruptRx();
 	if(huart == uartIt3.huart())
 		uartIt3.interruptRx();
 }
@@ -72,7 +79,8 @@ int main(void)
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 
-	MX_USART2_UART_Init();
+	MX_USART1_UART_Init();
+	//MX_USART2_UART_Init();
 	MX_USART3_UART_Init();
 //	MX_USB_DEVICE_Init();
 
@@ -107,9 +115,10 @@ int main(void)
 //				if(memcmp(nmeaBuf, "$GPRMC,", 7) == 0)
 //					uartIt2.write(nmeaBuf, nmeaBufPos);
 				if(memcmp(nmeaBuf, "$GPGGA,", 7) == 0)
-					uartIt2.write(nmeaBuf, nmeaBufPos);
+					uartIt1.write(nmeaBuf, nmeaBufPos);
 				nmeaBufPos = 0;
 			}
 		}
 	}
 }
+
