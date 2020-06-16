@@ -37,5 +37,7 @@ public:
 	void operator=(bool val) { setVal(val); }
 };
 
+typedef GpioOut<GPIOA_BASE, GPIO_PIN_8> GpioA8Out;
+
 typedef GpioOut<GPIOC_BASE, GPIO_PIN_13> GpioC13Out;
 typedef GpioOut<GPIOC_BASE, GPIO_PIN_14> GpioC14Out;
