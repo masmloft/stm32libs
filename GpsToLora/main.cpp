@@ -1,4 +1,4 @@
-//#include <string>
+#include <string>
 //#include <sstream>
 #include <string.h>
 
@@ -34,11 +34,17 @@ void _Error_Handler(char *file, int line)
 extern "C" void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
 	if(huart == uartIt1.huart())
+	{
 		uartIt1.interruptErr();
-//	if(huart == uartIt2.huart())
+		uartIt1.startRx();
+	}
+	//	if(huart == uartIt2.huart())
 //		uartIt2.interruptErr();
 	if(huart == uartIt3.huart())
+	{
 		uartIt3.interruptErr();
+		uartIt3.startRx();
+	}
 }
 
 extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
@@ -72,6 +78,8 @@ int main(void)
 {
 	HAL_Init();
 	SystemClock::initClockExt72M();
+
+	bool loraTxOn = true;
 
 	/* GPIO Ports Clock Enable */
 	__HAL_RCC_GPIOC_CLK_ENABLE();
@@ -136,32 +144,69 @@ int main(void)
 	loraCtrl.setLow();
 	HAL_Delay(500);
 
-	char nmeaBuf[256];
-	size_t nmeaBufPos = 0;
+//	char nmeaBuf[256];
+//	size_t nmeaBufPos = 0;
+
+	std::string uart1RxBuf;
+	uart1RxBuf.reserve(64);
+
+	std::string uart3RxBuf;
+	uart3RxBuf.reserve(256);
 
 	uartIt1.write(loraCfg, strlen(loraCfg));
 
 	for(uint32_t i = 0; true; ++i)
 	{
+		while(uartIt1.rxBuf().isEmpty() == false)
+		{
+			if(uart1RxBuf.size() >= 64)
+				uart1RxBuf.clear();
+			char b = uartIt1.rxBuf().pop();
+			if(b == '$')
+				uart1RxBuf.clear();
+			if(b == '\r')
+				b = '\n';
+			if(b == '\n')
+			{
+				if(uart1RxBuf.empty() == false)
+				{
+					uartIt1.write(uart1RxBuf.data(), uart1RxBuf.size());
+					uartIt1.write("\r\n", 2);
+					if(uart1RxBuf == "$TXOFF")
+						loraTxOn = false;
+					if(uart1RxBuf == "$TXON")
+						loraTxOn = true;
+					uart1RxBuf.clear();
+				}
+			}
+			else
+			{
+				uart1RxBuf.push_back(b);
+			}
+		}
+
 		while(uartIt3.rxBuf().isEmpty() == false)
 		{
-			if(nmeaBufPos >= sizeof(nmeaBuf))
-				nmeaBufPos = 0;
+			if(uart3RxBuf.size() >= uart3RxBuf.capacity())
+				uart3RxBuf.clear();
 			char b = uartIt3.rxBuf().pop();
 			if(b == '$')
 			{
 				led.setLow();
-				nmeaBufPos = 0;
+				uart3RxBuf.clear();
 			}
-			nmeaBuf[nmeaBufPos++] = b;
+			uart3RxBuf.push_back(b);
 			if(b == '\n')
 			{
 				led.setHi();
-//				if(memcmp(nmeaBuf, "$GPRMC,", 7) == 0)
-//					uartIt1.write(nmeaBuf, nmeaBufPos);
-				if(memcmp(nmeaBuf, "$GPGGA,", 7) == 0)
-					uartIt1.write(nmeaBuf, nmeaBufPos);
-				nmeaBufPos = 0;
+				if(loraTxOn)
+				{
+					//				if(memcmp(nmeaBuf, "$GPRMC,", 7) == 0)
+					//					uartIt1.write(nmeaBuf, nmeaBufPos);
+					if(memcmp(uart3RxBuf.data(), "$GPGGA,", 7) == 0)
+						uartIt1.write(uart3RxBuf.data(), uart3RxBuf.size());
+				}
+				uart3RxBuf.clear();
 			}
 		}
 	}
